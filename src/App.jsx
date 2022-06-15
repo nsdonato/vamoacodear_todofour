@@ -1,28 +1,57 @@
-import { collection, addDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
 import { Form } from './components/Form/Form'
 import { List } from './components/List/List'
-import { useFirestore } from './hooks/useFirestore'
-import db from './utils/firebaseConfig';
+import api from './api/firestore'
 import './App.css'
 
 function App() {
-  const [items, setItems] = useFirestore('tasks', [])
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const getSnaptshot = (querySnapshot) => {
+    let docs = [];
+    querySnapshot.forEach((doc) => {
+      docs.push({ id: doc.id, ...doc.data() })
+    });
+    setLoading(false);
+    setItems(docs);
+  }
+
+  const getFBDocs = async () => {
+    const querySnapshot = await api.getItems()
+    getSnaptshot(querySnapshot);
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    getFBDocs()
+    const unsub = api.getOnSnapShot(
+      (snapshot) => {
+        getSnaptshot(snapshot);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+
+    return () => {
+      unsub();
+      getFBDocs();
+    };
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     const inputValue = e.target.item.value.trim()
     if (!inputValue) return
-
-    await addDoc(collection(db, "tasks"), { value: inputValue, completed: false });
-
+    await api.addItem(inputValue);
     e.target.item.value = ''
   }
 
-  console.log(items)
   return (
     <div className="App">
       <Form onSubmit={handleSubmit} />
-      <List items={items} setItems={setItems} />
+      {loading ? <h1>Loading...</h1> : items.length > 0 ? <List items={items} /> : <h1>No items</h1>}
     </div>
   )
 }
