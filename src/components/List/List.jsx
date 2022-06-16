@@ -1,5 +1,6 @@
 import ListItem from './ListItem'
 import api from '../../api/firestore'
+import { Divider } from '@chakra-ui/react'
 
 export const List = ({ items }) => {
 
@@ -21,9 +22,12 @@ export const List = ({ items }) => {
     }
 
     return (
-        <ul>
+        <ul className="m-top-30">
             {items?.map(item => (
-                <ListItem key={item.id} item={item} onStroke={handleStroke} onDelete={handleDelete} />
+                <div key={item.id}>
+                    <ListItem item={item} onStroke={handleStroke} onDelete={handleDelete} />
+                    <Divider />
+                </div>
             ))}
         </ul>
     )

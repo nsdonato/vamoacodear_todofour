@@ -1,4 +1,8 @@
 import { useState, useEffect } from "react";
+import {
+  Box,
+  Container
+} from '@chakra-ui/react'
 import { Form } from './components/Form/Form'
 import { List } from './components/List/List'
 import api from './api/firestore'
@@ -49,10 +53,12 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <Form onSubmit={handleSubmit} />
-      {loading ? <h1>Loading...</h1> : items.length > 0 ? <List items={items} /> : <h1>No items</h1>}
-    </div>
+    <Container>
+      <Box textAlign="center" h="100vh" maxW='lg' borderRadius='lg' overflow='hidden'>
+        <Form onSubmit={handleSubmit} />
+        {loading ? <h1>Loading...</h1> : items.length > 0 ? <List items={items} /> : <h1>No items</h1>}
+      </Box>
+    </Container>
   )
 }
 
