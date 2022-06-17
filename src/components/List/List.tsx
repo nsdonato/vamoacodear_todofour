@@ -1,10 +1,15 @@
 import ListItem from './ListItem'
 import api from '../../api/firestore'
 import { Divider } from '@chakra-ui/react'
+import { Item } from '../../interfaces'
 
-export const List = ({ items }) => {
+interface PropList {
+    items: Item[];
+}
 
-    const handleDelete = async (id) => {
+export const List: React.FC<PropList> = ({ items }) => {
+
+    const handleDelete = async (id: string) => {
         try {
             await api.deleteItem(id);
         } catch (err) {
@@ -12,9 +17,9 @@ export const List = ({ items }) => {
         }
     }
 
-    const handleStroke = async (id) => {
+    const handleStroke = async (id: string) => {
         try {
-            const item = items.find(item => item.id === id)
+            const item = items.find(item => item.id === id) as Item
             await api.updateItem(item)
         } catch (err) {
             console.log(err);

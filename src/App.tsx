@@ -7,36 +7,35 @@ import { Form } from './components/Form/Form'
 import { List } from './components/List/List'
 import api from './api/firestore'
 import './App.css'
+import { Item } from './interfaces'
+import { QuerySnapshot, DocumentData } from "firebase/firestore";
 
 function App() {
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState<Item[] | []>([])
   const [loading, setLoading] = useState(true)
 
-  const getSnaptshot = (querySnapshot) => {
-    let docs = [];
-    querySnapshot.forEach((doc) => {
-      docs.push({ id: doc.id, ...doc.data() })
+  const getSnaptshot = (querySnapshot: QuerySnapshot<DocumentData>) => {
+    let docs: Item[] = [];
+    querySnapshot.forEach((doc: DocumentData) => {
+      docs.push({ ...doc.data() })
     });
     setLoading(false);
     setItems(docs);
   }
 
   const getFBDocs = async () => {
-    const querySnapshot = await api.getItems()
+    const querySnapshot = await api.getItems();
     getSnaptshot(querySnapshot);
   }
 
   useEffect(() => {
     setLoading(true);
     getFBDocs()
-    const unsub = api.getOnSnapShot(
-      (snapshot) => {
-        getSnaptshot(snapshot);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+
+    const cb = (querySnapshot: QuerySnapshot<DocumentData>) => {
+      getSnaptshot(querySnapshot);
+    }
+    const unsub = api.getOnSnapShot(cb)
 
     return () => {
       unsub();
@@ -44,12 +43,16 @@ function App() {
     };
   }, [])
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
-    const inputValue = e.target.item.value.trim()
+    const target = e.target as typeof e.target & {
+      item: { value: string };
+    };
+
+    const inputValue = target.item.value.trim()
     if (!inputValue) return
     await api.addItem(inputValue);
-    e.target.item.value = ''
+    target.item.value = ''
   }
 
   return (

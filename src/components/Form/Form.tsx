@@ -4,7 +4,11 @@ import {
 } from '@chakra-ui/react'
 import { CustomButton } from '../Button/CustomButton'
 
-export const Form = ({ onSubmit }) => {
+interface FormProps {
+    onSubmit: (e: React.SyntheticEvent) => void;
+}
+
+export const Form: React.FC<FormProps> = ({ onSubmit }) => {
     return (
         <form className='m-top-30' onSubmit={onSubmit}>
             <FormControl display="flex" justifyContent="space-between" isInvalid={false}>
